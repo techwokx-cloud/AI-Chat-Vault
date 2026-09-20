@@ -1,3 +1,4 @@
+import { ChatBox } from "@/components/chat/ChatBox";
 import { ConversationList } from "@/components/dashboard/ConversationList";
 import { ConversationViewer } from "@/components/dashboard/ConversationViewer";
 import { QuickActions } from "@/components/dashboard/QuickActions";
@@ -24,7 +25,10 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <QuickActions />
+      <section className="grid gap-6 xl:grid-cols-2">
+        <QuickActions />
+        <ChatBox />
+      </section>
     </div>
   );
 }
