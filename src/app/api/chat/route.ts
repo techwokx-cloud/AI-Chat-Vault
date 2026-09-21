@@ -57,8 +57,7 @@ export async function POST(request: Request) {
     const text = response.content
       .filter((block) => block.type === "text")
       .map((block) => block.text)
-      .join("
-");
+    .join("\n"); 
 
     return NextResponse.json({
       message: text,
