@@ -1,0 +1,22 @@
+import { MessageCircle } from 'lucide-react';
+
+export function AskArchiveWidget() {
+  return (
+    <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+      <div className="flex gap-3">
+        <MessageCircle className="text-blue-500 flex-shrink-0 mt-1" size={20} />
+        <div className="flex-1">
+          <h3 className="font-semibold text-blue-900 mb-1">💬 Ask Your Archive</h3>
+          <p className="text-sm text-blue-800 mb-3">
+            Continue work from archived conversations. Ask a question or provide the next task.
+          </p>
+          <input 
+            type="text"
+            placeholder="Ask about archived conversation..."
+            className="w-full px-3 py-2 border border-blue-300 rounded bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
