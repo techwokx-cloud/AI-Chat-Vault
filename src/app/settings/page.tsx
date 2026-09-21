@@ -1,63 +1,177 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Check, Save } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { Save, Key, Bell, Lock, Database, Download } from 'lucide-react';
 
 export default function SettingsPage() {
-  const [workspaceName, setWorkspaceName] = useState("Innovation Lab");
-  const [saved, setSaved] = useState(false);
+  const [settings, setSettings] = useState({
+    autoBackup: true,
+    backupFrequency: 'weekly',
+    notifications: true,
+    notificationEmail: '',
+    theme: 'dark',
+    exportFormat: 'json',
+  });
 
-  function saveSettings(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    localStorage.setItem(
-      "ai-chat-vault:settings:v1",
-      JSON.stringify({ workspaceName }),
-    );
-    setSaved(true);
-    window.setTimeout(() => setSaved(false), 1800);
-  }
+  const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch('/api/settings');
+      const data = await response.json();
+      setSettings(data);
+    } catch (error) {
+      console.error('Failed to fetch settings:', error);
+    }
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const response = await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings),
+      });
+
+      if (response.ok) {
+        setMessage('Settings saved successfully');
+        setTimeout(() => setMessage(''), 3000);
+      } else {
+        setMessage('Failed to save settings');
+      }
+    } catch (error) {
+      console.error('Save failed:', error);
+      setMessage('Error saving settings');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Manage your AI Chat Vault account and workspace preferences.
-        </p>
-      </div>
+    <div className="max-w-2xl mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">Settings</h1>
 
-      <form
-        onSubmit={saveSettings}
-        className="max-w-2xl space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
-      >
-        <div>
-          <label
-            htmlFor="workspace-name"
-            className="text-sm font-semibold text-slate-900"
-          >
-            Workspace name
+      {message && (
+        <div className={`p-4 rounded-lg mb-6 ${
+          message.includes('success')
+            ? 'bg-green-50 text-green-800'
+            : 'bg-red-50 text-red-800'
+        }`}>
+          {message}
+        </div>
+      )}
+
+      <div className="space-y-6">
+        {/* Backup Settings */}
+        <div className="border border-gray-200 rounded-lg p-6">
+          <h2 className="flex items-center gap-2 text-xl font-semibold mb-4">
+            <Database size={24} />
+            Backup Settings
+          </h2>
+
+          <label className="flex items-center gap-3 mb-4">
+            <input
+              type="checkbox"
+              checked={settings.autoBackup}
+              onChange={(e) =>
+                setSettings({ ...settings, autoBackup: e.target.checked })
+              }
+              className="w-5 h-5"
+            />
+            <span>Enable automatic backups</span>
           </label>
 
-          <input
-            id="workspace-name"
-            value={workspaceName}
-            onChange={(event) => setWorkspaceName(event.target.value)}
-            className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-          />
-
-          <p className="mt-1 text-xs text-slate-400">
-            This name appears in your workspace header.
-          </p>
+          <div>
+            <label className="block text-sm font-medium mb-2">Backup Frequency</label>
+            <select
+              value={settings.backupFrequency}
+              onChange={(e) =>
+                setSettings({ ...settings, backupFrequency: e.target.value })
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+            >
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
         </div>
 
+        {/* Notification Settings */}
+        <div className="border border-gray-200 rounded-lg p-6">
+          <h2 className="flex items-center gap-2 text-xl font-semibold mb-4">
+            <Bell size={24} />
+            Notifications
+          </h2>
+
+          <label className="flex items-center gap-3 mb-4">
+            <input
+              type="checkbox"
+              checked={settings.notifications}
+              onChange={(e) =>
+                setSettings({ ...settings, notifications: e.target.checked })
+              }
+              className="w-5 h-5"
+            />
+            <span>Enable notifications</span>
+          </label>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Email Address</label>
+            <input
+              type="email"
+              value={settings.notificationEmail}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  notificationEmail: e.target.value,
+                })
+              }
+              placeholder="your@email.com"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+            />
+          </div>
+        </div>
+
+        {/* Export Settings */}
+        <div className="border border-gray-200 rounded-lg p-6">
+          <h2 className="flex items-center gap-2 text-xl font-semibold mb-4">
+            <Download size={24} />
+            Export Settings
+          </h2>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Export Format</label>
+            <select
+              value={settings.exportFormat}
+              onChange={(e) =>
+                setSettings({ ...settings, exportFormat: e.target.value })
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+            >
+              <option value="json">JSON</option>
+              <option value="markdown">Markdown</option>
+              <option value="zip">ZIP Archive</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Save Button */}
         <button
-          type="submit"
-          className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-500"
+          onClick={handleSave}
+          disabled={isSaving}
+          className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-semibold"
         >
-          {saved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}
-          {saved ? "Saved" : "Save settings"}
+          <Save size={20} />
+          {isSaving ? 'Saving...' : 'Save Settings'}
         </button>
-      </form>
+      </div>
     </div>
   );
 }
