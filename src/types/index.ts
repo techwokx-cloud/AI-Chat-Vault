@@ -2,10 +2,11 @@ export interface ConversationWithMetadata {
   id: string;
   title: string;
   description?: string;
+  summary?: string;
+  preview?: string;
   createdAt: Date | string;
   updatedAt: Date | string;
   messageCount: number;
-  preview?: string;
 }
 
 export interface Message {
