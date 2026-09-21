@@ -39,3 +39,15 @@ export interface DashboardStats {
   totalStorage: string;
   lastBackup?: Date | string;
 }
+
+export interface ConversationWithMetadata {
+  id: string;
+  title: string;
+  description?: string;
+  summary?: string;
+  preview?: string;
+  tags?: string[];
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  messageCount: number;
+}
